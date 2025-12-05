@@ -1,0 +1,9 @@
+creation_rules:
+  - path_regex: \.enc\.yaml$
+    kms: 'arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ID'
+
+  - path_regex: secrets/.*\.yaml$
+    kms: 'arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ID'
+
+  - path_regex: \.env\.enc$
+    kms: 'arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ID'
