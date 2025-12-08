@@ -15,6 +15,9 @@ volumes:
   prometheus_data:
   grafana_data:
   vault_data:
+  timescaledb_data:
+  neo4j_data:
+
 
 services:
   # PostgreSQL - Primary relational database
@@ -204,3 +207,43 @@ services:
       - devops-network
     cap_add:
       - IPC_LOCK
+
+    # TimescaleDB - Time-series database for analytics
+  timescaledb:
+    image: timescale/timescaledb:latest-pg15
+    container_name: devops-timescaledb
+    environment:
+      POSTGRES_USER: devops
+      POSTGRES_PASSWORD: devops123
+      POSTGRES_DB: devops_analytics
+    ports:
+      - "5433:5432"
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+    networks:
+      - devops-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devops"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Neo4j - Graph database
+  neo4j:
+    image: neo4j:5-community
+    container_name: devops-neo4j
+    environment:
+      NEO4J_AUTH: neo4j/devops123
+      NEO4J_PLUGINS: '["apoc"]'
+    ports:
+      - "7474:7474"  # HTTP
+      - "7687:7687"  # Bolt
+    volumes:
+      - neo4j_data:/data
+    networks:
+      - devops-network
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p devops123 'RETURN 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
